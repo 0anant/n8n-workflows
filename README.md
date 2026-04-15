@@ -27,3 +27,21 @@
 --n8n
 --Weather APIs
 --Gmail SMTP
+
+## 3. RSS Feed News Automation
+
+### Simple workflow that uses a rss feed node(read) takes in narticles and use edit node to format the data into proper html format and send it as email via SMTP
+
+---Schedule Trigger Node
+---RSS Feed node(read)
+---limit node
+---edit node
+---aggregate node
+---edit node
+---email node(smtp)
+
+## Tools used
+
+---n8n
+---News apis
+---Gmail SMTP
