@@ -45,3 +45,16 @@
 ---n8n
 ---News apis
 ---Gmail SMTP
+
+## 4. Build a Simple Webhook Receiver
+
+### just build it whils learning about triggers in n8n and use my learning to implement it on n8n
+
+---webhook node
+---edit node
+---email node
+
+## Tools used
+
+---n8n
+---gmail via smtp

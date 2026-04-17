@@ -1,0 +1,112 @@
+{
+  "name": "webhook Receiver",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "0cbcc549-726d-46a8-b7ff-2649fbe27967",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -176,
+        -96
+      ],
+      "id": "89385bbb-7e72-492f-bcbb-e701433aa5e3",
+      "name": "Webhook",
+      "webhookId": "0cbcc549-726d-46a8-b7ff-2649fbe27967"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ab1b971d-0488-40f2-953c-dd5d6900829c",
+              "name": "name",
+              "value": "={{ $json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "1944a536-c8ed-4bfe-9246-93d155027dba",
+              "name": "message",
+              "value": "={{ $json.body.msg }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        -96
+      ],
+      "id": "64890f3d-0e5b-42f9-a460-3387493cd6d1",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fromEmail": "bigbluemagic06@gmail.com",
+        "toEmail": "senpraveen1999@gmail.com",
+        "subject": "Simple Webhook Receiver",
+        "emailFormat": "both",
+        "text": "=hi, there ✌️,\ngood morning my name is {{ $json.name }} and {{ $json.message }} there!!😂😂",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        -96
+      ],
+      "id": "627dceb1-6a90-4740-988c-57a2bab7814a",
+      "name": "Send an Email",
+      "webhookId": "365b1d82-17c3-49c5-9f06-846f6f36d65d",
+      "credentials": {
+        "smtp": {
+          "id": "oRTs4ysyS0nibLlM",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "adaf082a-640f-46ce-9867-658d0d0ffeee",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "37661b5e2cf2fcaf0d6cd59e9beb874391772afd9d50f5564820a06a8a8f05bf"
+  },
+  "id": "vdJ0lo6icJmwGinL",
+  "tags": []
+}
