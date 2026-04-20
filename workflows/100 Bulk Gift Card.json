@@ -1,0 +1,178 @@
+{
+  "name": "100 Bulk Gift Card",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        16
+      ],
+      "id": "0ca5c370-a048-4743-94e2-0bab03ef7825",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const winners = [];\nfor (let i = 1; i <= 100; i++) {\n  winners.push({\n    name: `Winner ${i}`,\n    email: `testuser${i}@example.com`,\n    giftCode: `GIFT-2026-${Math.floor(Math.random() * 10000)}`\n  });\n}\nreturn winners;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        16
+      ],
+      "id": "dbc269df-4149-4aef-b3a2-8c48018c4034",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        112,
+        16
+      ],
+      "id": "3863e0b9-4fbd-492b-9ba6-f5d1424897a6",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ID1w43lGBk8Sp8K4v_G6t8xlrrPR2Gor7htymS_KpYU",
+          "mode": "list",
+          "cachedResultName": "100 testUsers",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ID1w43lGBk8Sp8K4v_G6t8xlrrPR2Gor7htymS_KpYU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ID1w43lGBk8Sp8K4v_G6t8xlrrPR2Gor7htymS_KpYU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.name }}",
+            "email": "={{ $json.email }}",
+            "giftCode": "={{ $json.giftCode }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "giftCode",
+              "displayName": "giftCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        320,
+        176
+      ],
+      "id": "c6a8a8e4-c3a1-4866-a4d2-a3e4ad9c0a56",
+      "name": "Append row in sheet",
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EeBwmDnsKy8oSinE",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b6e7bd3b-91c3-44f5-a77b-154d3e935013",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "37661b5e2cf2fcaf0d6cd59e9beb874391772afd9d50f5564820a06a8a8f05bf"
+  },
+  "id": "uRSY4jduKC64qduM",
+  "tags": []
+}
