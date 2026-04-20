@@ -1,0 +1,216 @@
+{
+  "name": "VIP Support",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "path23",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -208,
+        -16
+      ],
+      "id": "872de8b2-225c-4f51-8068-73bf07188fbc",
+      "name": "Webhook",
+      "webhookId": "9a243a07-d32c-44a6-b60a-01b58ba704f4"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "High",
+                    "rightValue": "={{ $json.body.priority }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d8c107d8-da18-46f1-936f-775276e5a3f8"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "19b51173-734e-452c-8a9e-dc977ecb5842",
+                    "leftValue": "Medium",
+                    "rightValue": "={{ $json.body.priority }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "3fdf4375-704e-4c7e-8a4b-6ce514aaf282",
+                    "leftValue": "Low",
+                    "rightValue": "={{ $json.body.priority }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        -32
+      ],
+      "id": "4879a3b5-b62c-4b86-9744-ec37c54880b0",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "senpraveen1999@gmail.com",
+        "subject": "Urgent Call ME!!",
+        "message": "Hi there ,its emergency Please call me",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        -192
+      ],
+      "id": "0973c364-e5c1-4f0f-a334-4b1b22da72e7",
+      "name": "Send a message",
+      "webhookId": "adaa1706-ba00-4ee1-bac1-e98692a9b82d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lgfTUQWyD5rT7pgM",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        240
+      ],
+      "id": "8a8e0c22-ed99-47d1-8a59-32290551f7b7",
+      "name": "Wait",
+      "webhookId": "462b8259-b874-4810-a614-cb7b70e78a31"
+    },
+    {
+      "parameters": {
+        "fromEmail": "bigbluemagic06@gmail.com",
+        "toEmail": "senpraveen1999@gmail.com",
+        "subject": "Hi There, ",
+        "html": "👋 hi there i learn n8n, langchain, claudeai, llm.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        32
+      ],
+      "id": "15c0b7de-93fd-40d8-9bcf-6c36498cca14",
+      "name": "Send an Email",
+      "webhookId": "5ae9329f-d1bf-44b9-9370-4d82cd8e789b",
+      "credentials": {
+        "smtp": {
+          "id": "oRTs4ysyS0nibLlM",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "dd97e38b-7ef9-4332-b631-3370e5e4542d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "37661b5e2cf2fcaf0d6cd59e9beb874391772afd9d50f5564820a06a8a8f05bf"
+  },
+  "id": "xVVoy39bG9RHNUX7",
+  "tags": []
+}
