@@ -1,0 +1,223 @@
+{
+  "name": "Project-tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1ID1w43lGBk8Sp8K4v_G6t8xlrrPR2Gor7htymS_KpYU",
+          "mode": "list",
+          "cachedResultName": "100 testUsers",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ID1w43lGBk8Sp8K4v_G6t8xlrrPR2Gor7htymS_KpYU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ID1w43lGBk8Sp8K4v_G6t8xlrrPR2Gor7htymS_KpYU/edit#gid=0"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -112
+      ],
+      "id": "ee672f58-1aca-44fd-9365-4463739bbebb",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "WSUigzxmXKMirTY3",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "3482aac9-5e3b-80b4-b547-f93a83220bed",
+          "mode": "list",
+          "cachedResultName": "n8n-integration",
+          "cachedResultUrl": "https://www.notion.so/3482aac95e3b80b4b547f93a83220bed"
+        },
+        "title": "100 testUsers",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Name|title",
+              "title": "={{ $json.name }}"
+            },
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $json.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -64,
+        -112
+      ],
+      "id": "809b865b-7d18-47d1-a5c4-ec6d65243bed",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "xg1oCEKIwOHJdhTA",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "3482aac9-5e3b-80b4-b547-f93a83220bed",
+          "mode": "list",
+          "cachedResultName": "n8n-integration",
+          "cachedResultUrl": "https://www.notion.so/3482aac95e3b80b4b547f93a83220bed"
+        },
+        "limit": 100,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        -112
+      ],
+      "id": "54b59795-ed7f-4f06-b453-847d67032745",
+      "name": "Get many database pages",
+      "executeOnce": true,
+      "credentials": {
+        "notionApi": {
+          "id": "xg1oCEKIwOHJdhTA",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6aed9740-2d86-4e89-a9c0-542b724f6402",
+              "leftValue": false,
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        352,
+        -112
+      ],
+      "id": "cf008457-8dad-454d-8dbd-3b8ddfe34768",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Page already exists"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        576,
+        -288
+      ],
+      "id": "1073b44a-f664-4f3d-b14e-57b1644ce38f",
+      "name": "Stop and Error"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5b308dcd-5876-4bb8-aa35-d3193d314efb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "37661b5e2cf2fcaf0d6cd59e9beb874391772afd9d50f5564820a06a8a8f05bf"
+  },
+  "id": "rGlgj9AkCpkXVNUb",
+  "tags": []
+}
