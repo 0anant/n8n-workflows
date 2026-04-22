@@ -1,0 +1,262 @@
+{
+  "name": "Lead_Enrichment",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "/new-lead",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        -48
+      ],
+      "id": "16a4330e-3683-4dc5-b3fe-e80b4f5d9ffb",
+      "name": "Webhook",
+      "webhookId": "0a143de2-98b4-4e3c-b98b-587400c17e5f"
+    },
+    {
+      "parameters": {
+        "jsCode": "const email  =$input.first().json.body.email;\nconst domain = email.split('@')[1];\nconst company_name = $input.first().json.body.company;\nreturn [{email, domain, company_name}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -48
+      ],
+      "id": "fc80f63a-30a4-4060-afd2-f42c1ec8436c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "66c2c35f930be9b98f873c6221e48eb4fae360b1"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "=\"{{$json.domain}} official website\""
+            },
+            {
+              "name": "num",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        -48
+      ],
+      "id": "38f7a99d-0f56-489e-bd69-ec5c0269dd7a",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "if(!$input.first().json.organic || $input.first().json.organic.length === 0){\n  return [{\n    ...$input.first().json,\n    website: \"https://\" + $input.first().json.domain,\n    company_name: $input.first().json.domain\n  }];\n}\n\nreturn $input.first().json;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        -48
+      ],
+      "id": "4d5f78aa-cf04-4476-bd11-5b79b41ae37d",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Loop over input items and add a new field called 'myNelet website = null;\nfunction extractDomain(link) {\n  try {\n    return link\n      .replace(\"https://\", \"\")\n      .replace(\"http://\", \"\")\n      .split(\"/\")[0]\n      .replace(\"www.\", \"\")\n      .toLowerCase();\n  } catch (e) {\n    return null;\n  }\n}\n\nconst results = $json.organic || [];\nconst inputDomain = ($json.domain || \"\").toLowerCase();\n\nconst blacklist = [\n  \"linkedin.com\",\n  \"facebook.com\",\n  \"twitter.com\",\n  \"instagram.com\",\n  \"crunchbase.com\",\n  \"zoominfo.com\",\n  \"bloomberg.com\",\n  \"wikipedia.org\"\n];\n\nlet best = null;\n\n// 1) Exact domain match\nfor (const r of results) {\n  if (!r.link) continue;\n\n  const domain = extractDomain(r.link);\n\n  if (domain === inputDomain) {\n    best = r;\n    break;\n  }\n}\n\n// 2) First non-blacklisted\nif (!best) {\n  for (const r of results) {\n    if (!r.link) continue;\n\n    const bad = blacklist.some(d => r.link.includes(d));\n    if (!bad) {\n      best = r;\n      break;\n    }\n  }\n}\n\n// 3) fallback\nif (!best && results.length > 0) {\n  best = results[0];\n}\n\n// 4) extract clean values\nlet website = null;\nlet companyName = null;\n\nif (best) {\n  website = \"https://\" + extractDomain(best.link);\n\n  companyName = (best.title || \"\")\n    .split(\"|\")[0]\n    .split(\"-\")[0]\n    .trim();\n}\n\n// 5) safety fallback\nif (!website && inputDomain) {\n  website = \"https://\" + inputDomain;\n}\n\nif (!companyName && inputDomain) {\n  companyName = inputDomain;\n}\n\nconst email = $json.email || \"\";\nconst domain = $json.domain || email.split(\"@\")[1] || \"\";\n\nreturn {\n  json: {\n    email,\n    domain,\n    website,\n    company_name: companyName || domain\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        -48
+      ],
+      "id": "5b1e2776-0937-420c-90b9-686f01afd7d0",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "34a2aac9-5e3b-8007-8f0b-f3cfcab85b29",
+          "mode": "list",
+          "cachedResultName": "CRM",
+          "cachedResultUrl": "https://www.notion.so/34a2aac95e3b80078f0bf3cfcab85b29"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Company|rich_text",
+              "textContent": "={{ $json.company_name }}"
+            },
+            {
+              "key": "Website|url",
+              "urlValue": "={{ $json.website }}"
+            },
+            {
+              "key": "Name|title",
+              "title": "={{ $('Webhook').item.json.body.name }}"
+            },
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $('Webhook').item.json.body.email }}"
+            },
+            {
+              "key": "Domain|rich_text",
+              "textContent": "={{ $('Code in JavaScript').item.json.domain }}"
+            },
+            {
+              "key": "Status|select",
+              "selectValue": "New"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        -48
+      ],
+      "id": "5778841f-69f4-408d-9c1f-6e0044388f56",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "xg1oCEKIwOHJdhTA",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "senpraveen1999@gmail.com",
+        "subject": "!!New Lead!!",
+        "emailType": "text",
+        "message": "=🚀 New Lead Captured\n\n👤 Name: {{$json.name}}\n🏢 Company: {{$json.property_company}}\n🌐 Website: {{$json.property_website}}\n📧 Email: {{$json.property_email}}\n\nForm Lead generating Team!!\nHurry to get in contact ASAP!!\nGood luck🤞 \n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1056,
+        -48
+      ],
+      "id": "5c971987-9305-497e-bfcc-d052fcda4d3e",
+      "name": "Send a message",
+      "webhookId": "8a70c54e-3571-491a-b9af-dfd2e52bb9df",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lgfTUQWyD5rT7pgM",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8134b4ae-a7f9-4318-a470-26eba8867ff3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "37661b5e2cf2fcaf0d6cd59e9beb874391772afd9d50f5564820a06a8a8f05bf"
+  },
+  "id": "KiDyxMJ0VtjxmSZF",
+  "tags": []
+}
