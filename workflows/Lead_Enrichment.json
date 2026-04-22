@@ -38,7 +38,7 @@
         "headerParameters": {
           "parameters": [
             {
-              "name": "X-API-KEY",
+              "name": "X-PI-KEY",
               "value": "66c2c35f930be9b98f873c6221e48eb4fae360b1"
             },
             {
