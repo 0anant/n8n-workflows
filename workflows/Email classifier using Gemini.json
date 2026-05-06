@@ -1,0 +1,226 @@
+{
+  "name": "Email classifier using Gemini",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "openAI/path",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        -32
+      ],
+      "id": "dc84941d-e46e-4d7a-bbaf-a753fbd96063",
+      "name": "Webhook",
+      "webhookId": "612644c1-4a6c-4e22-a500-43f0fc10dad0"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bc1bf360-e6ac-4f21-acae-4c3cecf6d697",
+              "name": "subject",
+              "value": "={{ $json.body.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "764521bb-5fc9-4b7c-a560-c6b8cfdd1777",
+              "name": "body",
+              "value": "={{ $json.body.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        -32
+      ],
+      "id": "4a3ab50a-67f5-4450-9b9d-f10bae99f59f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "AIzaSyCkvLgqiZJXnHVmNqarxIbMzjL4Q8WK2GI"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"contents\": [\n{\n\"parts\": [\n  {\n    \"text\": \"You are an email classifier. Return ONLY valid JSON.\\n\\nClassify this email:\\n\\nSubject: {{ $json.subject}}\\nBody: {{ $json.body}}\\nReturn format:\\n{\\n  \\\"category\\\": \\\"support | sales | spam\\\"\\n}\" \n  }\n]\n}\n]}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        -32
+      ],
+      "id": "14dc16cc-14b6-4d94-a8d6-228cf61366a6",
+      "name": "HTTP Request",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f175285f-4a78-496b-8c48-961e374fd9a7",
+              "name": "raw_output",
+              "value": "= {{ $json['candidates'][0]['content']['parts'][0]['text'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        432,
+        -32
+      ],
+      "id": "c559d8d7-5cce-4866-b8e1-03a2d7d72898",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "let raw = $input.first().json.raw_output;\n\n// remove markdown if present\nraw = raw.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\n\n// parse JSON\nconst parsed = JSON.parse(raw);\n\nreturn [{json: parsed}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        -32
+      ],
+      "id": "7b063983-b5f3-4484-a6c8-904e20d53808",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a0b1f054-ae6a-4c4c-8326-f353a311638d",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "=support",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        848,
+        -32
+      ],
+      "id": "2aab0b96-abe5-4a92-97ee-ff736d6c8390",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b5a9716b-2774-4394-b2f5-d261bb255b3c",
+  "meta": {
+    "instanceId": "37661b5e2cf2fcaf0d6cd59e9beb874391772afd9d50f5564820a06a8a8f05bf"
+  },
+  "id": "QmwkNn8TtCjUaK27",
+  "tags": []
+}
